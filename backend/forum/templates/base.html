@@ -1,0 +1,88 @@
+{% load static %}
+{% load bootstrap3 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"
+            integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% bootstrap_messages %}
+    <style>
+        #container {
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+
+        .notification-counter {
+            position: absolute;
+            margin-top: -20px;
+            margin-left: -8px;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Forum</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                    <li>
+                        <a id="notification" href="{% url 'messenger' %}" class="btn">
+                            {% bootstrap_icon 'glyphicon glyphicon-envelope' %}
+                            {% if user.message_notification.count %}
+                                <span class="badge alert-danger notification-counter">{{ user.message_notification.count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a id="notification" class="btn">
+                            {% bootstrap_icon 'glyphicon glyphicon-bell' %}
+                            {% if user.forum_notification.count %}
+                                <span class="badge alert-danger notification-counter">{{ user.forum_notification.count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a class="btn" href="{% url 'profile' %}">
+                        <img
+                                height="15px"
+                                src="
+
+
+                                        {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
+                                alt="">
+                        Hello <span id="username">{{ user.username }}</span>
+                        <span
+                                style="margin-left: 10px"
+                                class="text-{% if user.reputation >= 30 %}success{% elif user.reputation >= 15 %}warning{% else %}danger{% endif %}">
+                            {% bootstrap_icon 'glyphicon glyphicon-bookmark' %} {{ user.reputation }}
+                        </span>
+                    </a></li>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'sign_in' %}">Sign in</a></li>
+                    <li><a href="{% url 'sign_up' %}">Sign up</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="container" class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+
+</body>
+</html>

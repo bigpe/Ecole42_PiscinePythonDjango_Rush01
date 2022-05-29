@@ -1,0 +1,7 @@
+{% load bootstrap3 %}
+
+<form method="post" action="{{ request.path }}"
+      style="width: 50%; margin-left: auto; margin-right: auto; margin-top: 100px;">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+</form>

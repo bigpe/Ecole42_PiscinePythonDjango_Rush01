@@ -1,0 +1,44 @@
+{% load static %}
+
+<div class="post" id="{{ post.id }}">
+    <div class="post-title">
+        <div><h4>{{ post.title }}</h4></div>
+        <div style="display: grid">
+            <div>{{ post.date|date }}</div>
+            <div style="display: flex; width: 100%; justify-content: space-between; padding: 10px">
+                <span class="post_up {% if user in post.vote_up.all %}active{% endif %} glyphicon glyphicon-thumbs-up"></span>
+                <span class="post_down {% if user in post.vote_down.all %}active{% endif %} glyphicon glyphicon-thumbs-down"></span>
+            </div>
+        </div>
+    </div>
+    <div>{{ post.content }}</div>
+    <hr>
+
+    {% for comment in post.comments.all %}
+        <div class="container-fluid" style="display: flex; justify-content: space-between">
+            <a href="{% url 'profile_detail' comment.author.pk %}"
+               style="text-decoration: none; text-align: left; width: 5%">
+                {% if comment.author.profile_picture %}
+                    <img class="avatar" src="{{ comment.author.profile_picture }}" alt="">
+                {% else %}
+                    <img class="avatar" src="{% static 'anon-cat.jpg' %}" alt="">
+                {% endif %}
+            </a>
+            <span style="width: 80%">{{ comment.content }}</span>
+            <span style="width: 15%; text-align: right">{{ comment.date|timesince }} ago</span>
+        </div>
+        <hr>
+    {% endfor %}
+    {% if user.is_authenticated %}
+        <div class="row" style="margin-left: 10px; margin-right: 10px">
+            <div class="input-group input-group-sm">
+                <input id="comment_text" type="text" class="form-control">
+                <span class="input-group-btn">
+                    <button post_id="{{ post.id }}" class="send_comment btn btn-default" type="button">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    {% endif %}
+</div>

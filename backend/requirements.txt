@@ -1,0 +1,16 @@
+asgi-redis
+asgiref
+autobahn
+channels
+daphne
+Django
+django-bootstrap3
+gunicorn
+msgpack-python
+Pillow
+redis
+six
+Twisted
+txaio
+uWSGI
+zope.interface

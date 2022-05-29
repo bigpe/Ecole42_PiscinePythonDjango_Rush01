@@ -1,0 +1,80 @@
+<style>
+    .chat_area {
+        height: 80vh;
+        overflow-y: scroll;
+        padding: 20px;
+    }
+
+    .message {
+        width: 100%;
+        text-align: left;
+        margin-top: 25px;
+        margin-bottom: 25px;
+    }
+
+    .message.you {
+        text-align: right;
+    }
+
+    .message .content {
+        background: lightgreen;
+        padding: 10px;
+        border-radius: 15px;
+    }
+
+    .message.you .content {
+        background: lightblue;
+    }
+
+    .message .time {
+        margin-left: 5px;
+        font-size: 9px;
+    }
+</style>
+<div class="chat_area">
+    {% for message in chat.chat_messages.all %}
+        <div class="message {% if message.author == user %}you{% endif %}">
+            <span class="content">{{ message.content }} <span class="time">{{ message.date|time }}</span></span>
+        </div>
+    {% endfor %}
+</div>
+<div class="row" style="margin-left: 10px; margin-right: 10px">
+    <div class="input-group input-group-sm">
+        <input id="comment_text" type="text" class="form-control">
+        <span class="input-group-btn">
+            <button chat_id="{{ chat.id }}" class="send_comment btn btn-default" type="button">
+                <span class="glyphicon glyphicon-envelope"></span>
+            </button>
+        </span>
+    </div>
+</div>
+<script>
+    $('.send_comment').on('click', e => {
+        let btn = e.currentTarget;
+        let chat_id = btn.getAttribute('chat_id');
+        let input = $(btn).parent().parent().find('#comment_text');
+        let message_text = input.val();
+        if (message_text)
+            send_comment(chat_id, message_text);
+        input.val('');
+    })
+
+    function send_comment(chat_id, message_text) {
+        $.ajax({
+            url: "{% url 'message_add' %}",
+            method: 'post',
+            data: {
+                content: message_text,
+                chat_id: chat_id,
+            },
+            success: (data) => {
+                $.ajax({
+                    url: `{% url 'chat_simple' chat.id %}`,
+                    success: (data) => {
+                        $('#chat').html(data);
+                    }
+                })
+            }
+        })
+    }
+</script>

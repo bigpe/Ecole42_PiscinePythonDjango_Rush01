@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+    <style>
+        .message {
+            display: flex;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            min-height: 100px;
+            align-items: center;
+            text-decoration: none !important;
+            color: black !important;
+            justify-content: space-between;
+        }
+
+        .message:hover {
+            background: #efefef;
+        }
+
+        .avatar {
+            border-radius: 20px;
+            height: 30px;
+            opacity: 30%;
+        }
+        .message:hover .avatar {
+            opacity: 100%;
+        }
+    </style>
+    {% for chat in object_list %}
+        <hr>
+        <a href="{% url 'chat' chat.id %}" class="message">
+            <div style="display: grid; text-align: center">
+                <img class="avatar" src="
+                        {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
+                     alt=""/>
+                <span class="avatar">{{ chat.chat_messages.last.author.username }}</span>
+            </div>
+            <span>{{ chat.chat_messages.last.content|truncatechars:30 }}</span>
+            <span>{{ chat.chat_messages.last.date|timesince }} ago</span>
+        </a>
+        {% if forloop.last %}
+            <hr>
+        {% endif %}
+    {% endfor %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endblock %}

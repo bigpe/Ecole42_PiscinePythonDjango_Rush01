@@ -1,0 +1,124 @@
+<style>
+    .post {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 10px;
+    }
+
+    .post-title {
+        display: inline-flex;
+        justify-content: space-between;
+        width: 100%;
+        text-decoration: none;
+    }
+
+    .post-title div {
+        display: flex;
+    }
+
+    .avatar {
+        height: 20px;
+        border-radius: 15px;
+        opacity: 40%;
+    }
+
+    .avatar:hover {
+        opacity: 100%;
+    }
+    .post_up.active {
+        color: #6ab46a;
+    }
+    .post_down.active {
+        color: lightcoral;
+    }
+    .post_down, .post_up {
+        cursor: pointer;
+        padding: 5px;
+    }
+</style>
+
+
+<div id="posts">
+    {% for post in object_list %}
+        {% include 'post_detail.html' %}
+    {% empty %}
+        <div>No posts yet.</div>
+    {% endfor %}
+</div>
+
+<script>
+    $('.send_comment').on('click', e => {
+        let btn = e.currentTarget;
+        let post_id = btn.getAttribute('post_id');
+        let post_node = $(`.post#${post_id}`);
+        let input = $(btn).parent().parent().find('#comment_text');
+        let comment_text = input.val();
+        if (comment_text)
+            send_comment(post_id, comment_text);
+        input.val('');
+    })
+
+    function send_comment(post_id, comment_text) {
+        $.ajax({
+            url: "{% url 'comment_add' %}",
+            method: 'post',
+            data: {
+                content: comment_text,
+                post_id: post_id,
+            },
+            success: (data) => {
+                $.ajax({
+                    url: "{% url 'posts' %}",
+                    method: 'get',
+                    success: (data) => {
+                        $('#posts').html(data);
+                    }
+                })
+            }
+        })
+    }
+
+    $('.post_up').on('click', e => {
+        let btn = e.currentTarget;
+        let post_node = $(btn).closest('.post');
+        let post_id = post_node.prop('id');
+        $.ajax({
+            url: "{% url 'post_up' %}",
+            method: 'post',
+            data: {
+                post_id: post_id,
+            },
+            success: (data) => {
+                $.ajax({
+                    url: "{% url 'posts' %}",
+                    method: 'get',
+                    success: (data) => {
+                        $('#posts').html(data);
+                    }
+                })
+            }
+        })
+    })
+    $('.post_down').on('click', e => {
+        let btn = e.currentTarget;
+        let post_node = $(btn).closest('.post');
+        let post_id = post_node.prop('id');
+        $.ajax({
+            url: "{% url 'post_down' %}",
+            method: 'post',
+            data: {
+                post_id: post_id,
+            },
+            success: (data) => {
+                $.ajax({
+                    url: "{% url 'posts' %}",
+                    method: 'get',
+                    success: (data) => {
+                        $('#posts').html(data);
+                    }
+                })
+            }
+        })
+    })
+</script>

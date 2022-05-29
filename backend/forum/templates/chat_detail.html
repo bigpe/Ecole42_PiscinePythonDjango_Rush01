@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+        .avatar {
+            border-radius: 20px;
+            height: 30px;
+            margin-right: 10px;
+        }
+    </style>
+    <div style="display: flex; justify-content: space-between; width: 100%">
+        <a class="btn btn-sm btn-info" href="{% url 'messenger' %}" style="text-decoration: none;">
+            <span class="glyphicon glyphicon-arrow-left"></span>
+        </a>
+        <span>
+        <img class="avatar" src="
+                {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
+             alt="">
+            {% if chat.recipient == user %}{{ chat.author.username }}{% else %}{{ chat.recipient.username }}{% endif %}
+        </span>
+    </div>
+    <hr>
+    <div id="chat">
+        {% include 'chat_detail_simple.html' %}
+    </div>
+{% endblock %}
