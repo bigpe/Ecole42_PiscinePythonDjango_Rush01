@@ -7,7 +7,7 @@ import dataclasses
 import json
 from dataclasses import dataclass
 from functools import wraps
-from typing import Callable, Any, List
+from typing import Callable, Any
 
 from asgiref.sync import async_to_sync
 from channels.consumer import get_handler_name

@@ -40,6 +40,9 @@
 
 
 <div id="posts">
+    {% if user.is_authenticated %}
+        <a style="margin-left: 10px;" class="btn btn-success" href="{% url 'post_add' %}">Add new post</a>
+    {% endif %}
     {% for post in object_list %}
         {% include 'post_detail.html' %}
     {% empty %}

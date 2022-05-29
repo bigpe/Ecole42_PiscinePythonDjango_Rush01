@@ -38,6 +38,9 @@ class Post(models.Model):
 
     # comments: Comment
 
+    class Meta:
+        ordering = ['-date']
+
     def save(self, *args, **kwargs):
         for user in User.objects.all():
             Notification.objects.create(user=user, content=self.title, type='forum')

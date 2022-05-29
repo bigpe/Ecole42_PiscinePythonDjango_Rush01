@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate
 
 from django.contrib.auth import get_user_model
 
+from forum.models import Post
+
 User = get_user_model()
 
 
@@ -54,3 +56,9 @@ class ProfileDetailForm(forms.ModelForm):
             for field in instance._meta.fields:
                 if field.name in self.fields:
                     self.fields[field.name].widget.attrs['readonly'] = True
+
+
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        exclude = ['author', 'vote_up', 'vote_down']

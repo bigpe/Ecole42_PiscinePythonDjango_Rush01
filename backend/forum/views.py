@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View, UpdateView, ListView, DetailView, CreateView
 
-from .forms import SignInForm, SignUpForm, ProfileForm, ProfileDetailForm
+from .forms import SignInForm, SignUpForm, ProfileForm, ProfileDetailForm, PostForm
 from django.contrib.auth import get_user_model
 
 from .models import Post, Comment, Notification, Message, Chat
@@ -124,8 +124,13 @@ class PostDetailView(DetailView):
 
 class PostListView(ListView):
     model = Post
-    queryset = Post.objects.all()
     template_name = 'posts.html'
+
+    def get(self, request, *args, **kwargs):
+        for notification in Notification.objects.filter(type='forum', user=request.user):
+            notification.is_read = True
+            notification.save()
+        return super(PostListView, self).get(request, *args, **kwargs)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -195,3 +200,18 @@ class PostDownView(View):
             _post.vote_up.remove(request.user)
         return HttpResponse('OK')
 
+
+class PostCreateView(CreateView):
+    model = Post
+    template_name = 'post_create.html'
+    fields = ['title', 'content']
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        return {'form': PostForm()}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.author = self.request.user
+        obj.save()
+        return super(PostCreateView, self).form_valid(form)
