@@ -113,8 +113,8 @@ class ActionsEnum:
 
 @dataclass
 class ActionSystem:
-    initiator_channel: str  #: Action initiator channel name
-    initiator_user_id: int  #: Action initiator user id
+    initiator_channel: str = None  #: Action initiator channel name
+    initiator_user_id: int = None  #: Action initiator user id
 
     def to_data(self):
         return {
@@ -289,11 +289,15 @@ def user_cache_key(user: User):
 
 
 def get_system_cache(user: User):
-    return cache.get(user_cache_key(user))
+    return cache.get(user_cache_key(user), {})
 
 
 class BaseConsumer(JsonWebsocketConsumer):
     broadcast_group = None
+
+    def connect(self):
+        self.cache_system()
+        self.join_group(self.broadcast_group)
 
     def send_json(self, content, close=False):
         if 'system' in content:

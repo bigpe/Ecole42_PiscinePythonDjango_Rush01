@@ -1,0 +1,4 @@
+backend/*/migrations/*
+!backend/*/migrations/__init__.py
+.idea
+backend/db.sqlite3

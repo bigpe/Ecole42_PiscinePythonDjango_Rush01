@@ -13,13 +13,15 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import re_path
 
-from .middleware import TokenAuthMiddlewareFromPath
+from .middleware import AuthMiddlewareFromPath
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'd09.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rush01.settings')
+
+from ws.notifications import NotificationsConsumer
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": TokenAuthMiddlewareFromPath(URLRouter([
-        re_path(r'^chat/(?P<room_id>[\d]+)/(?P<user_id>[\d]+)/', ...),
+    "websocket": AuthMiddlewareFromPath(URLRouter([
+        re_path(r'^notifications/(?P<user_id>[\d]+)/', NotificationsConsumer.as_asgi()),
     ])),
 })

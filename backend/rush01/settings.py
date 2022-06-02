@@ -118,9 +118,9 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-INSTALLED_APPS += ['bootstrap3', 'forum']
+INSTALLED_APPS += ['bootstrap3', 'forum', 'channels']
 
-# ASGI_APPLICATION = 'rush01.asgi.application'
+ASGI_APPLICATION = 'rush01.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {

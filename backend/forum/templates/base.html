@@ -23,6 +23,23 @@
             margin-left: -8px;
             font-size: 10px;
         }
+
+        #notifications {
+            position: fixed;
+            right: 50px;
+            z-index: 999;
+        }
+
+        .notification {
+            border-radius: 15px;
+            display: none;
+            background: white;
+            box-shadow: 0 0 53px 0 lightgray;
+            width: 350px;
+            padding: 25px;
+            margin-bottom: 15px;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -55,9 +72,7 @@
                         <img
                                 height="15px"
                                 src="
-
-
-                                        {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
+                                      {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
                                 alt="">
                         Hello <span id="username">{{ user.username }}</span>
                         <span
@@ -78,11 +93,40 @@
         </div>
     </div>
 </nav>
+<div id="notifications">
+</div>
 
 <div id="container" class="container">
     {% block content %}
     {% endblock %}
 </div>
+
+<script>
+    (function () {
+        let Websocket = new WebSocket('ws://127.0.0.1:8000/notifications/{{ user.id }}/');
+        Websocket.onopen = () => {
+            console.log('Connected')
+        }
+        Websocket.onmessage = (e) => {
+            let data = JSON.parse(e.data);
+            if (data.event === 'post_created_notification')
+                createNotification('New post', data.params.title);
+            if (data.event === 'new_message_notification')
+                createNotification('Message', data.params.content, data.params.author);
+        }
+
+        function createNotification(title, content, author=null) {
+            if (author)
+                title = `${title} from ${author}`
+            let notification = $(`<div class="notification"><h4>${title}</h4>${content}</div>`);
+            $('#notifications').append(notification);
+            notification.animate({width: 'toggle', opacity: 'toggle'}, 550);
+            setTimeout(() => {
+                notification.animate({width: 'toggle', opacity: 'toggle'}, 700, () => notification.remove());
+            }, 5000)
+        }
+    })();
+</script>
 
 </body>
 </html>

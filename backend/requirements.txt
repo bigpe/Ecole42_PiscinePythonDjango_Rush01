@@ -3,7 +3,7 @@ asgiref
 autobahn
 channels
 daphne
-Django
+Django==3.2.9
 django-bootstrap3
 gunicorn
 msgpack-python

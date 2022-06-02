@@ -1,5 +1,9 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class User(AbstractUser):
@@ -41,10 +45,23 @@ class Post(models.Model):
     class Meta:
         ordering = ['-date']
 
-    def save(self, *args, **kwargs):
-        for user in User.objects.all():
-            Notification.objects.create(user=user, content=self.title, type='forum')
-        super(Post, self).save(*args, **kwargs)
+
+@receiver(post_save, sender=Post)
+def post_notification(instance, created, **kwargs):
+    if not created:
+        return
+
+    from ws.base import get_system_cache, ActionSystem
+    for user in User.objects.all():
+        Notification.objects.create(user=user, content=instance.title, type='forum')
+
+    layer = get_channel_layer()
+    async_to_sync(layer.group_send)(
+        'notifications',
+        {'type': 'post.created.notification',
+         'params': {'title': instance.title[:30]},
+         'system': ActionSystem(**get_system_cache(instance.author)).to_data()}
+    )
 
 
 class Comment(models.Model):
@@ -74,19 +91,31 @@ class Message(models.Model):
     recipient = models.ForeignKey(User, models.CASCADE, related_name='recipient')
     chat = models.ForeignKey(Chat, models.CASCADE, null=True, blank=True, related_name='chat_messages')
 
-    def save(self, *args, **kwargs):
-        Notification.objects.create(user=self.recipient, content=self.content, type='message')
-        if not self.chat:
-            if not Chat.objects.filter(author=self.author, recipient=self.recipient):
-                self.chat = Chat.objects.create(author=self.author, recipient=self.recipient)
-            elif not Chat.objects.filter(recipient=self.author, author=self.recipient):
-                self.chat = Chat.objects.create(author=self.author, recipient=self.recipient)
-            else:
-                chat = Chat.objects.filter(author=self.author, recipient=self.recipient).first()
-                chat_reverse = Chat.objects.filter(author=self.recipient, recipient=self.author).first()
-                if chat:
-                    self.chat = chat
-                else:
-                    self.chat = chat_reverse
 
-        super(Message, self).save(*args, **kwargs)
+@receiver(post_save, sender=Message)
+def message_notification(instance, created, **kwargs):
+    if not created:
+        return
+    from ws.base import get_system_cache, ActionSystem
+
+    Notification.objects.create(user=instance.recipient, content=instance.content, type='message')
+    layer = get_channel_layer()
+    async_to_sync(layer.group_send)(
+        'notification',
+        {'type': 'new.message.notification',
+         'params': {'content': instance.content[:30], 'author': instance.author.username,
+                    'to_user_id': instance.recipient.id},
+         'system': ActionSystem(**get_system_cache(instance.author)).to_data()}
+    )
+    if not instance.chat:
+        if not Chat.objects.filter(author=instance.author, recipient=instance.recipient):
+            instance.chat = Chat.objects.create(author=instance.author, recipient=instance.recipient)
+        elif not Chat.objects.filter(recipient=instance.author, author=instance.recipient):
+            instance.chat = Chat.objects.create(author=instance.author, recipient=instance.recipient)
+        else:
+            chat = Chat.objects.filter(author=instance.author, recipient=instance.recipient).first()
+            chat_reverse = Chat.objects.filter(author=instance.recipient, recipient=instance.author).first()
+            if chat:
+                instance.chat = chat
+            else:
+                instance.chat = chat_reverse

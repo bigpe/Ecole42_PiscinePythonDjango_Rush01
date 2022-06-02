@@ -1,8 +1,11 @@
 from asgiref.sync import sync_to_async
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+
+User = get_user_model()
 
 
-class TokenAuthMiddlewareFromPath:
+class AuthMiddlewareFromPath:
     def __init__(self, inner):
         self.inner = inner
 
