@@ -103,7 +103,7 @@
 
 <script>
     (function () {
-        let Websocket = new WebSocket('ws://127.0.0.1:8000/notifications/{{ user.id }}/');
+        let Websocket = new WebSocket('ws://127.0.0.1:8001/notifications/{{ user.id }}/');
         Websocket.onopen = () => {
             console.log('Connected')
         }

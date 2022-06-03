@@ -1,0 +1,39 @@
+upstream backend {
+    server backend:${BACKEND_PORT};
+}
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name ${DOMAIN};
+    return 302 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name ${DOMAIN};
+
+    ssl_certificate /app/server.crt;
+    ssl_certificate_key /app/server.key;
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+    ssl_ecdh_curve secp384r1;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    keepalive_timeout 60s;
+    sendfile on;
+    tcp_nopush on;
+    client_body_timeout 5;
+
+    uwsgi_read_timeout 36000;
+    client_max_body_size 50m;
+
+    include templates/base.locations;
+    include templates/static.locations;
+}
