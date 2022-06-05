@@ -2,3 +2,7 @@ backend/*/migrations/*
 !backend/*/migrations/__init__.py
 .idea
 backend/db.sqlite3
+backend/static
+backend/media
+*.pyc
+*.pyo

@@ -101,10 +101,10 @@
     {% block content %}
     {% endblock %}
 </div>
-{% if user.id %}
+{% if user.is_authenticated %}
     <script>
         (function () {
-            let Websocket = new WebSocket('ws://127.0.0.1:8000/notifications/{{ user.id }}/');
+            let Websocket = new WebSocket('wss://0.0.0.0/notifications/{{ user.id }}/');
             Websocket.onopen = () => {
                 console.log('Connected')
             }
