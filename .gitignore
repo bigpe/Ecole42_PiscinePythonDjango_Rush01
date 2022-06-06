@@ -6,3 +6,6 @@ backend/static
 backend/media
 *.pyc
 *.pyo
+backend/django_rush01.egg-info
+backend/dist
+backend/build
