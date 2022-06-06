@@ -19,7 +19,7 @@
             <a href="{% url 'profile_detail' comment.author.pk %}"
                style="text-decoration: none; text-align: left; width: 5%">
                 {% if comment.author.profile_picture %}
-                    <img class="avatar" src="{{ comment.author.profile_picture }}" alt="">
+                    <img class="avatar" src="{{ comment.author.profile_picture.url }}" alt="">
                 {% else %}
                     <img class="avatar" src="{% static 'anon-cat.jpg' %}" alt="">
                 {% endif %}

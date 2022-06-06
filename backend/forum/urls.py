@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import IndexView, SignInView, SignUpView, Logout, ProfileUpdateView, ProfileDetailView, \
     ProfileSelfDetailView, PostDetailView, PostListView, CommentCreateView, MessageListView, ChatDetailView, \
-    MessageCreateView, ChatDetailSimple, PostUpView, PostDownView, PostCreateView
+    MessageCreateView, ChatDetailSimple, PostUpView, PostDownView, PostCreateView, ChatCreateView
 
 urlpatterns = [
     path('', IndexView.as_view(), name='home'),
@@ -18,6 +18,7 @@ urlpatterns = [
     path('comment/add/', CommentCreateView.as_view(), name='comment_add'),
     path('messenger/', MessageListView.as_view(), name='messenger'),
     path('chat/<int:pk>/', ChatDetailView.as_view(), name='chat'),
+    path('chat/add/', ChatCreateView.as_view(), name='chat_add'),
     path('chat/simple/<int:pk>/', ChatDetailSimple.as_view(), name='chat_simple'),
     path('message/add/', MessageCreateView.as_view(), name='message_add'),
     path('post/up/', PostUpView.as_view(), name='post_up'),

@@ -69,12 +69,7 @@
                         </a>
                     </li>
                     <li><a class="btn" href="{% url 'profile' %}">
-                        <img
-                                height="15px"
-                                src="
-
-                                        {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
-                                alt="">
+                        <img height="15px" src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}" alt="">
                         Hello <span id="username">{{ user.username }}</span>
                         <span
                                 style="margin-left: 10px"
@@ -106,7 +101,7 @@
         (function () {
             let Websocket = new WebSocket('wss://0.0.0.0/notifications/{{ user.id }}/');
             Websocket.onopen = () => {
-                console.log('Connected')
+                console.log('Connected to notification consumer')
             }
             Websocket.onmessage = (e) => {
                 let data = JSON.parse(e.data);

@@ -1,6 +1,7 @@
 from typing import Callable
 
 from django.contrib.auth import login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
@@ -15,6 +16,10 @@ from django.contrib.auth import get_user_model
 from .models import Post, Comment, Notification, Message, Chat
 
 User = get_user_model()
+
+
+class LoginRequired(LoginRequiredMixin):
+    login_url = reverse_lazy('sign_in')
 
 
 def only_for_not_authed(f: Callable):
@@ -141,7 +146,7 @@ class CommentCreateView(View):
         return HttpResponse('OK')
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequired, ListView):
     model = Chat
     template_name = 'messenger.html'
     paginate_by = 10
@@ -156,13 +161,13 @@ class MessageListView(ListView):
         return super(MessageListView, self).get(request, *args, **kwargs)
 
 
-class ChatDetailView(DetailView):
+class ChatDetailView(LoginRequired, DetailView):
     model = Chat
     template_name = 'chat_detail.html'
     context_object_name = 'chat'
 
 
-class ChatDetailSimple(DetailView):
+class ChatDetailSimple(LoginRequired, DetailView):
     model = Chat
     template_name = 'chat_detail_simple.html'
     context_object_name = 'chat'
@@ -215,3 +220,16 @@ class PostCreateView(CreateView):
         obj.author = self.request.user
         obj.save()
         return super(PostCreateView, self).form_valid(form)
+
+
+class ChatCreateView(CreateView):
+    model = Message
+    template_name = 'chat_create.html'
+    fields = ['content', 'recipient']
+    success_url = reverse_lazy('messenger')
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.author = self.request.user
+        obj.save()
+        return super(ChatCreateView, self).form_valid(form)

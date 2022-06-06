@@ -1,6 +1,6 @@
 <style>
     .chat_area {
-        height: 80vh;
+        height: 60vh;
         overflow-y: scroll;
         padding: 20px;
     }
@@ -72,6 +72,8 @@
                     url: `{% url 'chat_simple' chat.id %}`,
                     success: (data) => {
                         $('#chat').html(data);
+                        var objDiv = document.getElementsByClassName("chat_area")[0];
+                        objDiv.scrollTop = objDiv.scrollHeight;
                     }
                 })
             }

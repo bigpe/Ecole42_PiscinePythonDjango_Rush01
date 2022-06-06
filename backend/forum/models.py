@@ -101,10 +101,19 @@ def message_notification(instance, created, **kwargs):
     Notification.objects.create(user=instance.recipient, content=instance.content, type='message')
     layer = get_channel_layer()
     async_to_sync(layer.group_send)(
-        'notification',
+        'notifications',
         {'type': 'new.message.notification',
          'params': {'content': instance.content[:30], 'author': instance.author.username,
                     'to_user_id': instance.recipient.id},
+         'system': ActionSystem(**get_system_cache(instance.author)).to_data()}
+    )
+    async_to_sync(layer.group_send)(
+        'chat',
+        {'type': 'message.send',
+         'params': {'content': instance.content,
+                    'to_user_id': instance.recipient.id,
+                    'time': instance.date.strftime("%I:%M %p").replace('AM', 'a.m.').replace('PM', 'p.m.')
+                    },
          'system': ActionSystem(**get_system_cache(instance.author)).to_data()}
     )
     if not instance.chat:

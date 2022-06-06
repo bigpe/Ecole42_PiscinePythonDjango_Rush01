@@ -2,5 +2,5 @@
 
 {% block content %}
     <h2 class="text-center">Profile update</h2>
-    {% include "form.html" with url='profile_update' pk=user.id %}
+    {% include "form.html" with url='profile_update' pk=user.id extra='enctype="multipart/form-data"'%}
 {% endblock %}

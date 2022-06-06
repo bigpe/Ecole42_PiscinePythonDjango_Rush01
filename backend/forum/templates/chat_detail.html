@@ -15,7 +15,9 @@
         </a>
         <span>
         <img class="avatar" src="
-                {% if user.profile_picture %}{{ user.profile_picture }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
+
+
+                {% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'anon-cat.jpg' %}{% endif %}"
              alt="">
             {% if chat.recipient == user %}{{ chat.author.username }}{% else %}{{ chat.recipient.username }}{% endif %}
         </span>
@@ -24,4 +26,30 @@
     <div id="chat">
         {% include 'chat_detail_simple.html' %}
     </div>
+    <script>
+        let objDiv = document.getElementsByClassName("chat_area")[0];
+        objDiv.scrollTop = objDiv.scrollHeight;
+
+        (function () {
+            let Websocket = new WebSocket('wss://0.0.0.0/chat/{{ user.id }}/');
+            Websocket.onopen = () => {
+                console.log('Connected to chat consumer')
+            }
+            Websocket.onmessage = (e) => {
+                let data = JSON.parse(e.data);
+                if (data.event === 'message_show')
+                    createMessage(data.params.content, data.params.time);
+            }
+
+            function createMessage(content, time) {
+                let chat_area = $('.chat_area').first();
+                let message = $(`<div class="message">
+                    <span class="content">${content} <span class="time">${time}</span></span>
+                </div>`);
+                chat_area.append(message);
+                objDiv = document.getElementsByClassName("chat_area")[0];
+                objDiv.scrollTop = objDiv.scrollHeight;
+            }
+        })();
+    </script>
 {% endblock %}

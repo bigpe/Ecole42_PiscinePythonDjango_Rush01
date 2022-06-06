@@ -22,10 +22,12 @@ from django.urls import re_path
 from .middleware import AuthMiddlewareFromPath
 
 from ws.notifications import NotificationsConsumer
+from ws.chat import ChatConsumer
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareFromPath(URLRouter([
         re_path(r'^notifications/(?P<user_id>[\d]+)/', NotificationsConsumer.as_asgi()),
+        re_path(r'^chat/(?P<user_id>[\d]+)/', ChatConsumer.as_asgi()),
     ])),
 })

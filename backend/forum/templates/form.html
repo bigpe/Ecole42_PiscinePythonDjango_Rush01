@@ -1,7 +1,7 @@
 {% load bootstrap3 %}
 
 <form method="post" action="{% if url %}{% url url pk %}{% else %}{{ request.path }}{% endif %}"
-      style="width: 50%; margin-left: auto; margin-right: auto; margin-top: 100px;">
+      style="width: 50%; margin-left: auto; margin-right: auto; margin-top: 100px;" {{ extra }}>
     {% if form.errors %}
         {% for field in form %}
             {% for error in field.errors %}
